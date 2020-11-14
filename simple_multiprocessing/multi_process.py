@@ -19,12 +19,12 @@ class MultiProcess:
 
     def __init__(
         self,
-        tasks: List[Task] = []
+        tasks: List[Optional[Task]] = []
     ):
         """Creates a new multiproceess object
 
         Args:
-            tasks (List[Task], optional): Tasks to innit with. More can be added later. Defaults to [].
+            tasks (List[Optional[Task]], optional): Tasks to innit with. More can be added later. Defaults to [].
         """    
         self.tasks = tasks
 
@@ -43,18 +43,27 @@ class MultiProcess:
         queue = SimpleQueue()
         processes = []
         taks_id = 0
+        null_task_ids = []
 
         for task in self.tasks:
-            task.timeout = task.timeout or timeout
-            p = Process(target=self.__solve_task, args=(task, taks_id, queue,))
-            p.start()
-            processes.append(p)
+            if task:
+                task.timeout = task.timeout or timeout
+                p = Process(target=self.__solve_task, args=(task, taks_id, queue,))
+                p.start()
+                processes.append(p)
+            else:
+                null_task_ids.append(taks_id)
+
             taks_id += 1
-        
+
         for p in processes:
             p.join()
 
         results = [queue.get() for _ in processes]
+
+        for taks_id in null_task_ids:
+            results.append((taks_id, None))
+
         sorted_results = sorted(results, key=lambda tup: tup[0])
 
         return [r_tup[1] for r_tup in sorted_results]
