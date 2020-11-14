@@ -25,7 +25,7 @@ class MultiProcess:
 
         Args:
             tasks (List[Optional[Task]], optional): Tasks to innit with. More can be added later. Defaults to [].
-        """    
+        """
         self.tasks = tasks
 
 

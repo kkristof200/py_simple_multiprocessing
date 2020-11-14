@@ -9,7 +9,7 @@ else:
 
 setuptools.setup(
     name="simple_multiprocessing",
-    version="0.0.3",
+    version="0.0.4",
     author="Kristof",
     description="execute multiple async tasks as simple as possible",
     long_description=long_description,
