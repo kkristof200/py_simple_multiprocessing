@@ -59,7 +59,7 @@ class MultiProcess:
 
         active_processes = []
         finished_processes = []
-        max_concurent_processes = max_concurent_processes if max_concurent_processes and max_concurent_processes > 0 else sys.maxint
+        max_concurent_processes = max_concurent_processes if max_concurent_processes and max_concurent_processes > 0 else sys.maxsize
 
         while True:
             while len(active_processes) < max_concurent_processes and len(processes) > 0:
