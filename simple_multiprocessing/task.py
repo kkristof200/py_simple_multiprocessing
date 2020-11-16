@@ -2,6 +2,7 @@
 
 # System
 from typing import Optional, Callable
+import time
 
 # Pip
 import stopit
@@ -63,7 +64,7 @@ class Task:
 
     # ------------------------------------------------------- Private methods -------------------------------------------------------- #
 
-    @stopit.threading_timeoutable(default=TIME_OUT_ERROR, timeout_param='timeout')
+    @stopit.signal_timeoutable(default=TIME_OUT_ERROR, timeout_param='timeout')
     def __execute_with_timeout(self, timeout: Optional[float] = None) -> any:
         return self.target(*self.args, **self.kwargs)
 

@@ -3,6 +3,7 @@
 # System
 from typing import Optional, Callable, List
 from multiprocessing import Process, SimpleQueue
+import sys
 
 # Local
 from .task import Task
@@ -24,18 +25,19 @@ class MultiProcess:
         """Creates a new multiproceess object
 
         Args:
-            tasks (List[Optional[Task]], optional): Tasks to init with. More can be added later. Defaults to [].
+            tasks (List[Optional[Task]], optional): Tasks to innit with. More can be added later. Defaults to [].
         """
         self.tasks = tasks
 
 
     # -------------------------------------------------------- Public methods -------------------------------------------------------- #
 
-    def solve(self, timeout: Optional[float] = None) -> List[any]:
+    def solve(self, timeout: Optional[float] = None, max_concurent_processes: Optional[int] = None) -> List[any]:
         """Solves all added tasks in parallel
 
         Args:
             timeout (Optional[float], optional): Timeout to use for tasks wich do not have a timeout speciified yet. Defaults to None.
+            max_concurent_processes (Optional[int], optional): Maximum comcurent processes to execute at a time.
 
         Returns:
             List[any]: Result or exception for each task (exception will not be thrown, but returned)
@@ -49,17 +51,44 @@ class MultiProcess:
             if task:
                 task.timeout = task.timeout or timeout
                 p = Process(target=self.__solve_task, args=(task, taks_id, queue,))
-                p.start()
                 processes.append(p)
             else:
                 null_task_ids.append(taks_id)
 
             taks_id += 1
 
-        for p in processes:
-            p.join()
+        active_processes = []
+        finished_processes = []
+        max_concurent_processes = max_concurent_processes if max_concurent_processes and max_concurent_processes > 0 else sys.maxint
 
-        results = [queue.get() for _ in processes]
+        while True:
+            while len(active_processes) < max_concurent_processes and len(processes) > 0:
+                process = processes.pop(0)
+                process.start()
+                active_processes.append(process)
+
+            if len(active_processes) == 0:
+                break
+
+            while True:
+                finished_process_pos = None
+
+                for i, process in enumerate(active_processes):
+                    process.join(timeout=0)
+
+                    if not process.is_alive():
+                        finished_process_pos = i
+                        process.join()
+
+                        break
+
+                if finished_process_pos is not None:
+                    finished_process = active_processes.pop(finished_process_pos)
+                    finished_processes.append(finished_process)
+
+                    break
+
+        results = [queue.get() for _ in finished_processes]
 
         for taks_id in null_task_ids:
             results.append((taks_id, None))
