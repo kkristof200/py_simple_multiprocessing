@@ -1,4 +1,4 @@
-from simple_multiprocessing import MultiProcess, Task
+from simple_multiprocessing import MultiThread, MultiProcess, Task
 import random, time
 
 def test(i: int) -> float:
@@ -9,9 +9,10 @@ def test(i: int) -> float:
         while True:
             time.sleep(0.01)
 
-    return time.time() - start
+    res = time.time() - start
+    return res#time.time() - start
 
 tasks = [Task(test, i) for i in range(5)]
-results = MultiProcess(tasks).solve(timeout=1)
 
-[print(i, type(r), r) for i, r in enumerate(results)]
+[print(i, type(r), r) for i, r in enumerate(MultiThread(tasks).solve(timeout=1))]
+[print(i, type(r), r) for i, r in enumerate(MultiProcess(tasks).solve(timeout=1))]

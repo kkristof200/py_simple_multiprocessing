@@ -1,3 +1,6 @@
 from .multi_process import MultiProcess
-from .task import Task
-from .constants import TIME_OUT_ERROR
+from .multi_thread import MultiThread
+
+from .models import *
+
+from stopit import ThreadingTimeout, SignalTimeout

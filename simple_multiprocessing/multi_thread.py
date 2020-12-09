@@ -1,7 +1,7 @@
 # --------------------------------------------------------------- Imports ---------------------------------------------------------------- #
 
 # System
-from multiprocessing import Process
+from threading import Thread
 
 # Local
 from ._multi_task import _MultiTask
@@ -10,12 +10,12 @@ from ._multi_task import _MultiTask
 
 
 
-# --------------------------------------------------------- class: MultiProcess ---------------------------------------------------------- #
+# ---------------------------------------------------------- class: MultiThread ---------------------------------------------------------- #
 
-class MultiProcess(_MultiTask):
+class MultiThread(_MultiTask):
 
     def _proc_cls(self) -> type:
-        return Process
+        return Thread
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------- #

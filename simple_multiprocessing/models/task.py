@@ -25,6 +25,7 @@ class Task:
         target: Callable,
         *args,
         timeout: Optional[float] = None,
+        timout_function: Optional[Callable] = None,
         **kwargs
     ):
         """Creates a new Task object
@@ -32,6 +33,7 @@ class Task:
         Args:
             target (Callable): Function to call
             timeout (Optional[float], optional): Timeout of the task. Defaults to None.
+            timout_function (Optional[Callable], optional): Timeout functiion to use the task. Accepted values are 'stopit.ThreadingTimeout' annd 'stopit.SignalTimeout', Defaults to None (Will be chosen automatically).
 
         *args: Args to call the target with.
         **kwargs: Kwargs to call the target with.
@@ -40,6 +42,7 @@ class Task:
         self.args = args
         self.kwargs = kwargs
         self.timeout = timeout
+        self.timout_function = timout_function
 
 
     # -------------------------------------------------------- Public methods -------------------------------------------------------- #
@@ -64,9 +67,15 @@ class Task:
 
     # ------------------------------------------------------- Private methods -------------------------------------------------------- #
 
-    @stopit.signal_timeoutable(default=TIME_OUT_ERROR, timeout_param='timeout')
     def __execute_with_timeout(self, timeout: Optional[float] = None) -> any:
-        return self.target(*self.args, **self.kwargs)
+        try:
+            if self.timout_function:
+                with stopit.ThreadingTimeout(timeout, swallow_exc=False):
+                    return self.target(*self.args, **self.kwargs)
+            else:
+                return self.target(*self.args, **self.kwargs)
+        except stopit.TimeoutException:
+            raise TIME_OUT_ERROR
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------- #
