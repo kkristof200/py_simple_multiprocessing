@@ -6,6 +6,7 @@ import time
 
 # Pip
 import stopit
+from noraise import noraise
 
 # Local
 from .constants import TIME_OUT_ERROR
@@ -71,7 +72,11 @@ class Task:
         try:
             if self.timout_function:
                 with stopit.ThreadingTimeout(timeout, swallow_exc=False):
-                    return self.target(*self.args, **self.kwargs)
+                    @noraise(return_exception=True)
+                    def __execute(target: Callable, *args, **kwargs):
+                        return target(*args, **kwargs)
+
+                    return __execute(self.target, *self.args, **self.kwargs)
             else:
                 return self.target(*self.args, **self.kwargs)
         except stopit.TimeoutException:

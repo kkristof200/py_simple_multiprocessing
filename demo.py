@@ -4,6 +4,7 @@ import random, time
 def test(i: int) -> float:
     print('started:', i)
     start = time.time()
+    start / i
 
     if random.random() < 0.5:
         while True:
