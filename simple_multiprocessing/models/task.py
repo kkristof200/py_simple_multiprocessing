@@ -57,7 +57,7 @@ class Task:
 
         Returns:
             any: Return value of target
-        
+
         Throws:
             TIME_OUT_ERROR - if task is not finished befor the given timeout ends
         """

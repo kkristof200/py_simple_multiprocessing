@@ -16,7 +16,7 @@ pip3 install simple_multiprocessing
 
 ## Usage
 
-```python
+~~~~python
 from simple_multiprocessing import MultiThread, MultiProcess, Task
 import random, time
 
@@ -35,4 +35,4 @@ tasks = [Task(test, i) for i in range(5)]
 
 [print(i, type(r), r) for i, r in enumerate(MultiThread(tasks).solve(timeout=1))]
 [print(i, type(r), r) for i, r in enumerate(MultiProcess(tasks).solve(timeout=1))]
-```
+~~~~

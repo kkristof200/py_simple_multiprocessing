@@ -9,6 +9,7 @@ import sys
 
 # Pip
 import stopit
+from noraise import noraise
 
 # Local
 from .models.task import Task
@@ -142,14 +143,13 @@ class _MultiTask:
     # ------------------------------------------------------- Private methods -------------------------------------------------------- #
 
     def __solve_task(self, task: Task, id: int) -> None:
-        try:
-            result = task.execute()
-        except Exception as e:
-            result = e
+        @noraise(return_exception=True)
+        def __solve(task: Task) -> Optional[any]:
+            return task.execute()
 
         self.__lock.acquire()
         try:
-            self.__results[id] = result
+            self.__results[id] = __solve(task)
         finally:
             self.__lock.release()
 

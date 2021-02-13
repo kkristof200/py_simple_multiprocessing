@@ -9,14 +9,17 @@ else:
 
 setuptools.setup(
     name="simple_multiprocessing",
-    version="0.0.9",
+    version="0.0.10",
     author="Kristof",
     description="execute multiple async tasks as simple as possible",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/kkristof200/py_simple_multiprocessing",
     packages=setuptools.find_packages(),
-    install_requires=["stopit"],
+    install_requires=[
+        'noraise>=0.0.8',
+        'stopit>=1.1.2'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
