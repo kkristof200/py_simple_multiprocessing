@@ -1,4 +1,4 @@
-# --------------------------------------------------------------- Imports ---------------------------------------------------------------- #
+# ------------------------------------------------------------ Imports ----------------------------------------------------------- #
 
 # System
 from typing import Optional, Callable
@@ -11,15 +11,15 @@ from noraise import noraise
 # Local
 from .constants import TIME_OUT_ERROR
 
-# ---------------------------------------------------------------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------------------- #
 
 
 
-# ------------------------------------------------------------- class: Task -------------------------------------------------------------- #
+# ---------------------------------------------------------- class: Task --------------------------------------------------------- #
 
 class Task:
 
-    # ------------------------------------------------------------- Init ------------------------------------------------------------- #
+    # --------------------------------------------------------- Init --------------------------------------------------------- #
 
     def __init__(
         self,
@@ -46,15 +46,25 @@ class Task:
         self.timout_function = timout_function
 
 
-    # -------------------------------------------------------- Public methods -------------------------------------------------------- #
+    # ---------------------------------------------------- Public methods ---------------------------------------------------- #
 
-    def execute(self, timeout: Optional[float] = None) -> any:
+    def execute(
+        self,
+        timeout: Optional[float] = None,
+        print_exception: bool = False,
+        return_exception: bool = True,
+        return_value_on_exception: Optional[any] = None
+    ) -> any:
         """Calls target with the given params
 
-        Args:
-            timeout (Optional[float], optional): Timeout of the task.
-                                                 Only needed, if you want to override the timeout given at init.
-                                                 Defaults to None.
+        KwArgs:
+            timeout (Optional[float], optional):            Timeout of the task. Only needed, if you want
+                                                            to override the timeout given at init.
+                                                            Defaults to None.
+            print_exc (bool, optional):                     If True, prints stacktrace. Defaults to True.
+            return_exception (bool, optional):              If True, returns caught exception. Defaults to False.
+            default_return_value (Optional[any], optional): What to return upon caught exception if 'return_exception'
+                                                            is False. Defaults to None.
 
         Returns:
             any: Return value of target
@@ -63,16 +73,27 @@ class Task:
             TIME_OUT_ERROR - if task is not finished befor the given timeout ends
         """
 
-        return self.__execute_with_timeout(timeout=self.timeout or timeout)
+        return self.__execute_with_timeout(
+            timeout=self.timeout or timeout,
+            print_exception=print_exception,
+            return_exception=return_exception,
+            return_value_on_exception=return_value_on_exception
+        )
 
 
-    # ------------------------------------------------------- Private methods -------------------------------------------------------- #
+    # ---------------------------------------------------- Private methods --------------------------------------------------- #
 
-    def __execute_with_timeout(self, timeout: Optional[float] = None) -> any:
+    def __execute_with_timeout(
+        self,
+        timeout: Optional[float] = None,
+        print_exception: bool = False,
+        return_exception: bool = True,
+        return_value_on_exception: any = None
+    ) -> any:
         try:
             if self.timout_function:
                 with stopit.ThreadingTimeout(timeout, swallow_exc=False):
-                    @noraise(return_exception=True)
+                    @noraise(print_exc=print_exception, return_exception=return_exception, default_return_value=return_value_on_exception)
                     def __execute(target: Callable, *args, **kwargs):
                         return target(*args, **kwargs)
 
@@ -83,4 +104,4 @@ class Task:
             raise TIME_OUT_ERROR
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------------------- #

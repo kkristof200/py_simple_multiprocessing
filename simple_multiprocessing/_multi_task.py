@@ -1,4 +1,4 @@
-# --------------------------------------------------------------- Imports ---------------------------------------------------------------- #
+# ------------------------------------------------------------ Imports ----------------------------------------------------------- #
 
 # System
 from abc import abstractmethod
@@ -13,15 +13,15 @@ import stopit
 # Local
 from .models.task import Task
 
-# ---------------------------------------------------------------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------------------- #
 
 
 
-# ----------------------------------------------------------- class: _MultiTask ---------------------------------------------------------- #
+# ------------------------------------------------------- class: _MultiTask ------------------------------------------------------ #
 
 class _MultiTask:
 
-    # ------------------------------------------------------------- Init ------------------------------------------------------------- #
+    # --------------------------------------------------------- Init --------------------------------------------------------- #
 
     def __init__(
         self,
@@ -36,21 +36,34 @@ class _MultiTask:
         self.__lock = Lock()
 
 
-    # ------------------------------------------------------ Abstract properties ----------------------------------------------------- #
+    # -------------------------------------------------- Abstract properties ------------------------------------------------- #
 
     @abstractmethod
     def _proc_cls(self) -> type:
         pass
 
 
-    # -------------------------------------------------------- Public methods -------------------------------------------------------- #
+    # ---------------------------------------------------- Public methods ---------------------------------------------------- #
 
-    def solve(self, timeout: Optional[float] = None, max_concurent_processes: Optional[int] = None) -> List[any]:
+    def solve(
+        self,
+        timeout: Optional[float] = None,
+        max_concurent_processes: Optional[int] = None,
+        print_task_exception: bool = False,
+        return_task_exception: bool = True,
+        return_value_on_exception: Optional[any] = None
+    ) -> List[any]:
         """Solves all added tasks in parallel
 
-        Args:
-            timeout (Optional[float], optional): Timeout to use for tasks wich do not have a timeout speciified yet. Defaults to None.
-            max_concurent_processes (Optional[int], optional): Maximum comcurent processes to execute at a time (Thread or multiprocess.Process).
+        KwArgs:
+            timeout (Optional[float], optional):                 Timeout to use for tasks wich do not have a timeout
+                                                                 speciified yet. Defaults to None.
+            max_concurent_processes (Optional[int], optional):   Maximum comcurent processes to execute at a time
+                                                                 (Thread or multiprocess.Process).
+            print_task_exception (bool, optional):               If True, prints stacktrace. Defaults to True.
+            return_task_exception (bool, optional):              If True, returns caught exception. Defaults to False.
+            return_value_on_exception (Optional[any], optional): What to return upon caught exception if 'return_exception'
+                                                                 is False. Defaults to None.
 
         Returns:
             List[any]: Result or exception for each task (exception will not be thrown, but returned)
@@ -127,8 +140,16 @@ class _MultiTask:
 
         Args:
             tasks (List[Optional[Task]]): Tasks to innit with. More can be added later.
-            timeout (Optional[float], optional): Timeout to use for tasks wich do not have a timeout speciified yet. Defaults to None.
-            max_concurent_processes (Optional[int], optional): Maximum comcurent processes to execute at a time (Thread or multiprocess.Process).
+        
+        KwArgs:
+            timeout (Optional[float], optional):                 Timeout to use for tasks wich do not have a timeout
+                                                                 speciified yet. Defaults to None.
+            max_concurent_processes (Optional[int], optional):   Maximum comcurent processes to execute at a time
+                                                                 (Thread or multiprocess.Process).
+            print_task_exception (bool, optional):               If True, prints stacktrace. Defaults to True.
+            return_task_exception (bool, optional):              If True, returns caught exception. Defaults to False.
+            return_value_on_exception (Optional[any], optional): What to return upon caught exception if 'return_exception'
+                                                                 is False. Defaults to None.
 
         Returns:
             List[any]: Result or exception for each task (exception will not be thrown, but returned)
@@ -139,11 +160,22 @@ class _MultiTask:
     execute_cls = solve_cls
 
 
-    # ------------------------------------------------------- Private methods -------------------------------------------------------- #
+    # ---------------------------------------------------- Private methods --------------------------------------------------- #
 
-    def __solve_task(self, task: Task, id: int) -> None:
+    def __solve_task(
+        self,
+        task: Task,
+        id: int,
+        print_task_exception: bool,
+        return_task_exception: bool,
+        return_value_on_exception: Optional[any]
+    ) -> None:
         try:
-            res = task.execute()
+            res = task.execute(
+                print_exception=print_task_exception,
+                return_exception=return_task_exception,
+                return_value_on_exception=return_value_on_exception
+            )
         except Exception as e:
             res = e
 
@@ -154,4 +186,4 @@ class _MultiTask:
             self.__lock.release()
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------------------------------------------- #
