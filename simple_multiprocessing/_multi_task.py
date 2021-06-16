@@ -84,7 +84,7 @@ class _MultiTask:
             if task:
                 task.timeout = task.timeout or timeout
                 task.timout_function = task.timout_function or stopit.ThreadingTimeout if is_threaded else stopit.SignalTimeout
-                processes.append(proc_cls(target=self.__solve_task, args=(task, taks_id,)))
+                processes.append(proc_cls(target=self.__solve_task, args=(task, taks_id, print_task_exception, return_task_exception, return_value_on_exception)))
             else:
                 null_task_ids.append(taks_id)
 

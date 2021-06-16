@@ -10,7 +10,7 @@ else:
 
 setuptools.setup(
     name='simple_multiprocessing',
-    version="0.0.14",
+    version="0.0.15",
     author='Kristóf-Attila Kovács',
     description='simple_multiprocessing',
     long_description=long_description,
